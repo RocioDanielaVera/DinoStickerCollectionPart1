@@ -13,8 +13,17 @@ object UserRepository {
         users.add(User(1510L, "Diegote", "@12345", "Diego", "Gonzalez", 120000.0, "2018/04/15"))
     }
 
-    fun login() : User? {
-        return null
+    fun login(nickName: String, password:String) : User? {
+        var userFound:User? = null
+        if(nickName != "Unknown" && password != "Unknown"){
+            userFound = users.find { it.nickName == nickName && it.password == password }
+        }
+        return userFound
+    }
+
+    fun verifyUser(nickname:String, password: String): Boolean{
+        val user = login(nickname, password)
+        return user != null
     }
 
 }

@@ -1,6 +1,7 @@
 package org.dinostickers.collection.repositories
 
 import org.dinostickers.collection.data.Sticker
+import kotlin.random.Random
 
 
 object StickersRepository {
@@ -336,8 +337,27 @@ object StickersRepository {
                 "https://cdn.paleo.gg/games/jwe2/images/dino/edmontosaurus.png"
             )
         )
-
-
     }
+    fun getStickers():List<Sticker>{
+        return this.stickers
+    }
+
+    fun getRandomPackOfStickersByTotal(total:Int):List<Long>{
+        var totalFiguritas = total * 5
+        val stickerPack: MutableList<Long> = mutableListOf()
+        var position = 0
+        do{
+            var randomStickerPosition:Int = (Random.nextInt(30))
+            stickerPack.add(stickers.map{it.id}[randomStickerPosition])
+            position++
+        }while (position != totalFiguritas)
+        return stickerPack
+    }
+
+    fun getTotalPrice(total:Int):Double{
+        val list = getRandomPackOfStickersByTotal(total)
+        return 1000.0 * (list.size / 5)
+    }
+
 
 }

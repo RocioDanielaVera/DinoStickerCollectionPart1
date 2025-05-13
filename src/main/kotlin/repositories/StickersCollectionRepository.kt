@@ -1,6 +1,7 @@
 package org.dinostickers.collection.repositories
-
+import org.dinostickers.collection.repositories.StickersRepository
 import org.dinostickers.collection.data.StickersCollection
+import org.dinostickers.collection.data.User
 
 
 object StickersCollectionRepository {
@@ -31,8 +32,40 @@ object StickersCollectionRepository {
         )
     }
 
-    fun get(): List<StickersCollection> {
-        return emptyList()
+    fun get(userId:Long): List<StickersCollection> {
+        val lista = stickersCollections.filter { it.userId == userId }
+        return lista
+    }
+
+
+    fun addStickersToCollectionByUserId(stickers: List<Long>, userId: Long) {
+        get(userId).map { it.stickers.addAll(stickers) }
+    }
+
+    fun obtenerFiguritasFaltantes(allStickerIds: List<Long>, userSticker: List<Long>): List<Long> {
+        val userSet = userSticker.toSet()
+        return allStickerIds.filter { it !in userSet }
+    }
+
+    fun showStickersCollection(user: User?): String {
+        val listaUsuario = get(user?.id !!)
+
+        val repetidas = listaUsuario.flatMap{it.stickers}.groupingBy { it }.eachCount()
+        val filtradas = repetidas.filter { it.value > 1 }
+
+        val filtrarSticker: List<Long> = StickersRepository.getStickers().map { it.id }
+        val filtrarListaUsuario = listaUsuario.flatMap { it.stickers }
+
+        // allStickerIds.filter { it !in stickers.toSet() }
+        // StickersRepository.getStickers().filter { it != listaUsuario.toSet() }
+        val losQueFaltan = obtenerFiguritasFaltantes(filtrarSticker, filtrarListaUsuario)
+        return """
+            LISTA DE USUARIO = $listaUsuario
+            LAS QUE FALTAN: $losQueFaltan
+            REPETIDAS: $repetidas
+            FILTRADAS: $filtradas
+            REPETIDAS EN LLAVES: ${listaUsuario.groupingBy { it }.eachCount()}
+        """.trimIndent()
     }
 
 }
