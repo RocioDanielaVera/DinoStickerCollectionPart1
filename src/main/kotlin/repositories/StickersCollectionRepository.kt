@@ -1,5 +1,4 @@
 package org.dinostickers.collection.repositories
-import org.dinostickers.collection.repositories.StickersRepository
 import org.dinostickers.collection.data.StickersCollection
 import org.dinostickers.collection.data.User
 
@@ -37,7 +36,6 @@ object StickersCollectionRepository {
         return lista
     }
 
-
     fun addStickersToCollectionByUserId(stickers: List<Long>, userId: Long) {
         get(userId).map { it.stickers.addAll(stickers) }
     }
@@ -56,16 +54,16 @@ object StickersCollectionRepository {
         val filtrarSticker: List<Long> = StickersRepository.getStickers().map { it.id }
         val filtrarListaUsuario = listaUsuario.flatMap { it.stickers }
 
-        // allStickerIds.filter { it !in stickers.toSet() }
-        // StickersRepository.getStickers().filter { it != listaUsuario.toSet() }
         val losQueFaltan = obtenerFiguritasFaltantes(filtrarSticker, filtrarListaUsuario)
         return """
-            LISTA DE USUARIO = $listaUsuario
-            LAS QUE FALTAN: $losQueFaltan
-            REPETIDAS: $repetidas
-            FILTRADAS: $filtradas
-            REPETIDAS EN LLAVES: ${listaUsuario.groupingBy { it }.eachCount()}
+            -LISTA DE USUARIO = 
+            $listaUsuario
+            -STICKERS QUE FALTAN = 
+            $losQueFaltan
+            -STICKERS REPETIDOS =
+            $repetidas
+            -STICKERS FILTRADOS =
+            $filtradas
         """.trimIndent()
     }
-
 }

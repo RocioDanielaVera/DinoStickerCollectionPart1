@@ -25,5 +25,4 @@ object UserRepository {
         val user = login(nickname, password)
         return user != null
     }
-
 }

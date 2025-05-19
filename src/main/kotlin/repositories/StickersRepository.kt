@@ -353,11 +353,8 @@ object StickersRepository {
         }while (position != totalFiguritas)
         return stickerPack
     }
-
     fun getTotalPrice(total:Int):Double{
         val list = getRandomPackOfStickersByTotal(total)
         return 1000.0 * (list.size / 5)
     }
-
-
 }

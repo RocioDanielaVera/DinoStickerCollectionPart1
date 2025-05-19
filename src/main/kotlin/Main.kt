@@ -26,11 +26,9 @@ fun main() {
                         payMenu(user?.nickName, user?.money)
                         try {
                             var payment: MedioDePago? = choosePayment()
-                            elegirFiguritas(payment, user)
+                            chooseSticker(payment, user)
                         }catch (e: Exception){
                             println("ERROR: El medio de pago ingresado no es valido. $e")
-                        }finally {
-                            println("PAGO FINALIZADO.")
                         }
                     }
                     2 -> showCollectionByUserId(user)
@@ -46,7 +44,7 @@ fun loginMenu(){
     println("""
        ________________________________________________________________________________
        |                                                                              | 
-       |  L O G I N                                                                   | 
+       |                              L O G I N                                       | 
        |______________________________________________________________________________|
        | Bienvenido, Ingrese sus datos.                                               | 
        |______________________________________________________________________________|
@@ -57,9 +55,9 @@ fun userMenu(nickname: String?){
     println("""
        _________________________________________________________________________________
        |                                                                               | 
-       |  MENU                                                                         | 
+       |                              M E N U                                          | 
        |_______________________________________________________________________________|
-       | USER: $nickname                              
+       | USER: $nickname                                                             
        | 1. Comprar stickers.                                                          |
        | 2. Mostrar Colección.                                                         |
        | 3. Salir.                                                                     |
@@ -72,9 +70,9 @@ fun payMenu(nickname: String?, money:Double?){
     println("""
        _________________________________________________________________________________
        |                                                                               | 
-       |  MEDIOS DE PAGO                                                               | 
+       |                       M E D I O S  D E  P A G O                               | 
        |_______________________________________________________________________________|
-       | USER: $nickname                                 DISPONIBLE: $$money
+       | USER: $nickname                                 DISPONIBLE: $$money           
        | 1. MERCADO PAGO                                                               |
        | 2. VISA                                                                       |
        | 3. MASTERCARD                                                                 |
@@ -82,14 +80,15 @@ fun payMenu(nickname: String?, money:Double?){
        Ingrese el medio de pago deseado:
     """.trimIndent())
 }
+
 fun discountTotalAmount(user:User, total: Double): String{
     if(user.money < total){
         return "No se pudo realizar el pago."
     }
     user.money = (user.money - total)
     return """
-        Se realizo el pago exitosamente: $total
-        ${user.money}"
+        Se realizó el pago exitosamente: $$total
+        Saldo: $${user.money}"
     """.trimIndent()
 }
 
@@ -103,17 +102,28 @@ fun choosePayment(): MedioDePago?{
     }
 }
 
-fun elegirFiguritas(payment: MedioDePago?, user: User?){
-    println("")
-    println("")
-    var figuritas:Int = readln().toIntOrNull()?:1
-    val sticker:List<Long> = StickersRepository.getRandomPackOfStickersByTotal(figuritas)
-    StickersCollectionRepository.addStickersToCollectionByUserId(sticker, user?.id !!)
-    println(StickersCollectionRepository.get(user.id))
-    //pago
-    var montoBase = StickersRepository.getTotalPrice(figuritas)
-    println(discountTotalAmount(user, payment?.calcularMontoFinal(montoBase) !!))
-
+fun chooseSticker(payment: MedioDePago?, user: User?){
+    println("""
+        ATENCION: CADA PAQUETE CONTIENE 5 FIGURITAS.
+        Ingrese la cantidad de paquetes de figuritas que desea comprar:
+    """.trimIndent())
+    try{
+        val figuritas:Int = readln().toInt()
+        if(figuritas <= 0 ){
+            throw IllegalArgumentException("Debe ingresar un número mayor a cero.")
+        }
+        val sticker:List<Long> = StickersRepository.getRandomPackOfStickersByTotal(figuritas)
+        StickersCollectionRepository.addStickersToCollectionByUserId(sticker, user?.id !!)
+        val totalStickers = StickersCollectionRepository.get(user.id).flatMap { it.stickers }.size
+        println("Ahora tiene $totalStickers stickers.")
+        val montoBase = StickersRepository.getTotalPrice(figuritas)
+        println(discountTotalAmount(user, payment?.calcularMontoFinal(montoBase) !!))
+        println("PAGO FINALIZADO.")
+    }catch(e: NumberFormatException){
+        println("ERROR: La cantidad ingresada de paquetes de figuritas es inválida. $e")
+    }catch (e: IllegalArgumentException){
+        println("ERROR: ${e.message}")
+    }
 }
 
 fun showCollectionByUserId(user: User?){
